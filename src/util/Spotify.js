@@ -30,9 +30,6 @@ const Spotify = {
           return response.json();
         }
       })
-      .then(response => {
-      return response.json();
-      })
       .then(jsonResponse => {
         if(!jsonResponse.tracks){
           console.log("no response");
@@ -41,7 +38,7 @@ const Spotify = {
       return jsonResponse.tracks.items.map( track => ({
         id: track.id,
         name : track.name,
-        artist: track.artists[0].name, // first artist if array returned
+        artist: track.artists[0].name,
         album: track.album.name,
         uri: track.uri
       }))
