@@ -3,50 +3,23 @@ import './App.css';
 import Playlist from '../Playlist/Playlist';
 import SearchBar from '../SearchBar/SearchBar';
 import SearchResults from '../SearchResults/SearchResults';
+import Spotify from '../../util/Spotify';
 
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      searchResults: [
-        {
-          name: 'Rude.',
-          artist: 'Eternal Youth',
-          album: 'Eternal Youth',
-          id: '5'
-        }
-      ],
-
-      playlistName: 'Lo-fi',
-
-      playlistTracks: [
-        {
-          name: 'Rude.',
-          artist: 'Eternal Youth',
-          album: 'Eternal Youth',
-          id: '5'
-        },
-
-        {
-          name: 'Rude.',
-          artist: 'Eternal Youth',
-          album: 'Eternal Youth',
-          id: '4'
-        },
-
-        {
-          name: 'Rude.',
-          artist: 'Eternal Youth',
-          album: 'Eternal Youth',
-          id: '3'
-        }
-      ]
-    }
+      searchResults: [],
+      playlistName: '',
+      playlistTracks: []
+    };
 
     this.addTrack = this.addTrack.bind(this);
     this.removeTrack = this.removeTrack.bind(this);
     this.updatePlaylistName = this.updatePlaylistName.bind(this);
+    this.savePlaylist = this.savePlaylist.bind(this);
+    this.search = this.search.bind(this);
   }
 
   addTrack(track) {
@@ -65,12 +38,21 @@ class App extends Component {
     this.setState({playlistName: name});
   }
 
+  savePlaylist() {
+    // eslint-disable-next-line
+    let trackURIs = this.state.playlistTracks.map(playlistTrack => playlistTrack.uri)
+  }
+
+  search(term) {
+    Spotify.search(term).then(results => this.setState({searchResults: results}));
+  }
+
   render() {
     return (
       <div>
-        <h1>Ja<span class="highlight">mmm</span>ing</h1>
+        <h1>Ja<span className="highlight">mmm</span>ing</h1>
         <div className="App">
-          <SearchBar />
+          <SearchBar onSearch={this.search}/>
           <div className="App-playlist">
             <SearchResults
               searchResults={this.state.searchResults}
@@ -81,6 +63,7 @@ class App extends Component {
               playlistTracks={this.state.playlistTracks}
               onRemove={this.removeTrack}
               onNameChange={this.updatePlaylistName}
+              onSave={this.savePlaylist}
             />
           </div>
         </div>
