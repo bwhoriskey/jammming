@@ -12,17 +12,19 @@ const Spotify = {
     const URLExpiry = window.location.href.match(/expires_in=([^&]*)/);
 
     if (URLToken & URLExpiry) {
-      accessToken = URLToken
-      const expiresIn = URLExpiry
+      accessToken = URLToken[1];
+      const expiresIn = Number(URLExpiry[1]);
       window.setTimeout(() => accessToken = '', expiresIn * 1000);
       window.history.pushState('Access Token', null, '/');
+
+      return accessToken;
     } else {
-      window.location = `https://accounts.spotify.com/authorize?client_id=${clientID}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectURI}`
+      window.location = `https://accounts.spotify.com/authorize?client_id=${clientID}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectURI}`;
     }
   },
 
   search(term) {
-    accessToken = Spotify.getAccessToken();
+    const accessToken = Spotify.getAccessToken();
     const searchURL = `https://api.spotify.com/v1/search?type=track&q=${term}`;
     return fetch(searchURL, {headers: {Authorization: `Bearer ${accessToken}`}})
       .then(response => {
@@ -31,16 +33,12 @@ const Spotify = {
         }
       })
       .then(jsonResponse => {
-        if(!jsonResponse.tracks){
-          console.log("no response");
-          return [];
-      }
-      return jsonResponse.tracks.items.map( track => ({
-        id: track.id,
-        name : track.name,
-        artist: track.artists[0].name,
-        album: track.album.name,
-        uri: track.uri
+        return jsonResponse.tracks.items.map( track => ({
+          id: track.id,
+          name : track.name,
+          artist: track.artists[0].name,
+          album: track.album.name,
+          uri: track.uri
       }))
     })
   }
