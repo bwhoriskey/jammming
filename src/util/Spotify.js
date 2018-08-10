@@ -26,22 +26,50 @@ const Spotify = {
   search(term) {
     const accessToken = Spotify.getAccessToken();
     const searchURL = `https://api.spotify.com/v1/search?type=track&q=${term}`;
+
     return fetch(searchURL, {headers: {Authorization: `Bearer ${accessToken}`}})
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        }
-      })
-      .then(jsonResponse => {
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+    })
+    .then(jsonResponse => {
+      if (jsonResponse.tracks.items){
         return jsonResponse.tracks.items.map( track => ({
           id: track.id,
           name : track.name,
           artist: track.artists[0].name,
           album: track.album.name,
           uri: track.uri
-      }))
-    })
-  }
+        }))
+      } else {
+        return [];
+      }
+    });
+  },
+
+  // savePlaylist(playlistName, trackURIs) {
+  //   accessToken = Spotify.getAccessToken();
+  //   const headers = {Authorization: `Bearer ${accessToken}`};
+  //   let userID = '';
+  //   const userIDURL = 'https://api.spotify.com/v1/me';
+  //
+  //   if (!(playlistName && trackURIs)) {
+  //     return fetch(userIDURL, {headers: headers})
+  //     .then(response => {
+  //       if (response.ok) {
+  //         return response.json();
+  //       } else {
+  //         console.log('Failed to get user ID');
+  //       }
+  //     })
+  //     .then(jsonReponse = {
+  //       if (jsonReponse.id) {
+  //         userID = jsonReponse.id
+  //       }
+  //     })
+  //   }
+  // }
 }
 // Reference snippet of returned JSON
 // {
