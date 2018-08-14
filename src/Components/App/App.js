@@ -43,8 +43,9 @@ class App extends Component {
   }
 
   savePlaylist() {
-    // eslint-disable-next-line
-    let trackURIs = this.state.playlistTracks.map(playlistTrack => playlistTrack.uri)
+    let trackURIs = this.state.playlistTracks.map(playlistTrack => playlistTrack.uri);
+    Spotify.savePlaylist(this.state.playlistName, trackURIs);
+    this.setState({playlistName: 'New Playlist...', playlistTracks: []})
   }
 
   search(term) {

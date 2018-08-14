@@ -1,4 +1,4 @@
-const clientID = '1d02364c688446999d18ebcc5ad0614e'
+const clientID = ''
 const redirectURI = 'http://localhost:3000/'
 let accessToken;
 
@@ -16,7 +16,6 @@ const Spotify = {
       const expiresIn = Number(URLExpiry[1]);
       window.setTimeout(() => accessToken = '', expiresIn * 1000);
       window.history.pushState('Access Token', null, '/');
-
       return accessToken;
     } else {
       window.location = `https://accounts.spotify.com/authorize?client_id=${clientID}&response_type=token&scope=playlist-modify-public&redirect_uri=${redirectURI}`;
@@ -25,70 +24,77 @@ const Spotify = {
 
   search(term) {
     const accessToken = Spotify.getAccessToken();
-    const searchURL = `https://api.spotify.com/v1/search?type=track&q=${term}`;
-
-    return fetch(searchURL, {headers: {Authorization: `Bearer ${accessToken}`}})
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      }
-    })
-    .then(jsonResponse => {
-      if (jsonResponse.tracks.items){
-        return jsonResponse.tracks.items.map( track => ({
-          id: track.id,
-          name : track.name,
-          artist: track.artists[0].name,
-          album: track.album.name,
-          uri: track.uri
-        }))
-      } else {
-        return [];
-      }
-    });
+    // GET searched track info
+    if (term !== '') {
+      const searchURL = `https://api.spotify.com/v1/search?type=track&q=${term}`;
+      return fetch(searchURL, {headers: {Authorization: `Bearer ${accessToken}`}})
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }})
+      .then(jsonResponse => {
+        if (jsonResponse.tracks.items){
+          return jsonResponse.tracks.items.map( track => ({
+            id: track.id,
+            name : track.name,
+            artist: track.artists[0].name,
+            album: track.album.name,
+            uri: track.uri
+          }))
+        } else {
+          return '';
+        }
+      })
+    } else{
+      return '';
+    }
   },
 
-  // savePlaylist(playlistName, trackURIs) {
-  //   accessToken = Spotify.getAccessToken();
-  //   const headers = {Authorization: `Bearer ${accessToken}`};
-  //   let userID = '';
-  //   const userIDURL = 'https://api.spotify.com/v1/me';
-  //
-  //   if (!(playlistName && trackURIs)) {
-  //     return fetch(userIDURL, {headers: headers})
-  //     .then(response => {
-  //       if (response.ok) {
-  //         return response.json();
-  //       } else {
-  //         console.log('Failed to get user ID');
-  //       }
-  //     })
-  //     .then(jsonReponse = {
-  //       if (jsonReponse.id) {
-  //         userID = jsonReponse.id
-  //       }
-  //     })
-  //   }
-  // }
+  savePlaylist(playlistName, trackURIs) {
+    let userID;
+    let playlistID;
+    const accessToken = Spotify.getAccessToken();
+    const headers = {Authorization: `Bearer ${accessToken}`};
+    const IDEndpoint = 'https://api.spotify.com/v1/me';
+    // Verify arguments have values
+    if (playlistName && trackURIs) {
+      // GET current user ID
+      return fetch(IDEndpoint, {headers: headers})
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+      })
+      // POST request to create new playlist
+      .then(jsonResponse => {
+        userID = jsonResponse.id;
+        return fetch(`https://api.spotify.com/v1/users/${userID}/playlists`, {
+          headers: headers,
+          method: 'POST',
+          body: JSON.stringify({name: playlistName})
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+      })
+      // POST track URI's to new playlist
+      .then(jsonResponse => {
+        playlistID = jsonResponse.id
+        return fetch(`https://api.spotify.com/v1/users/${userID}/playlists/${playlistID}/tracks`, {
+          headers: headers,
+          method: 'POST',
+          body: JSON.stringify({uris: trackURIs})
+        })
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+      })
+    }
+  }
 }
-// Reference snippet of returned JSON
-// {
-//   "tracks": {
-//     "href": "https://api.spotify.com/v1/search?query=The+Railsplitters&type=track&market=US&offset=0&limit=2",
-//     "items": [
-//       {
-//         "album": {
-//           "album_type": "album",
-//           "artists": [
-//             {
-//               "external_urls": {
-//                 "spotify": "https://open.spotify.com/artist/3WK0k0njEDHpxtxYHi2pMC"
-//               },
-//               "href": "https://api.spotify.com/v1/artists/3WK0k0njEDHpxtxYHi2pMC",
-//               "id": "3WK0k0njEDHpxtxYHi2pMC",
-//               "name": "The Railsplitters",
-//               "type": "artist",
-//               "uri": "spotify:artist:3WK0k0njEDHpxtxYHi2pMC"
-//             }
 
 export default Spotify;
