@@ -7,13 +7,13 @@ import Spotify from '../../util/Spotify';
 
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchResults: [],
-      playlistName: '',
-      playlistTracks: []
-    };
+	constructor(props) {
+		super(props);
+		this.state = {
+			searchResults: [],
+			playlistName: '',
+			playlistTracks: []
+		};
 
     this.addTrack = this.addTrack.bind(this);
     this.removeTrack = this.removeTrack.bind(this);
