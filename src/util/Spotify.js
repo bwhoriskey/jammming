@@ -1,8 +1,9 @@
-const clientID = 'API key here';
-const redirectURI = 'http://localhost:3000/';
-let accessToken;
+const clientID = 'API-KEY-HERE';
+//const redirectURI = 'http://localhost:3000/';
+const redirectURI = window.location.href;
 
 const Spotify = {
+
 	getAccessToken() {
 		if (accessToken) {
 			return accessToken;
@@ -23,7 +24,6 @@ const Spotify = {
 	},
 
 	search(term) {
-		const accessToken = Spotify.getAccessToken();
 		// GET searched track info
 		if (term !== '') {
 			const searchURL = `https://api.spotify.com/v1/search?type=track&q=${term}`;
@@ -96,5 +96,7 @@ const Spotify = {
 		}
 	}
 };
+
+let accessToken = Spotify.getAccessToken();
 
 export default Spotify;
